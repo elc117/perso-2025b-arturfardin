@@ -34,18 +34,27 @@ data Servico = Servico
   deriving (Show, Generic)
 
 instance ToJSON Cliente
+
 instance FromJSON Cliente
+
 instance ToJSON Servico
+
 instance FromJSON Servico
 
 instance FromRow Servico where
   fromRow = Servico <$> field <*> field <*> field <*> field <*> field
+
 instance ToRow Servico where
   toRow (Servico id clienteId descricao valor dataServico) = toRow (id, clienteId, descricao, valor, dataServico)
+
 instance FromRow Cliente where
   fromRow = Cliente <$> field <*> field <*> field
+
 instance ToRow Cliente where
   toRow (Cliente id nome telefone) = toRow (id, nome, telefone)
+
+calculovalortotal :: [Servico] -> Double
+calculovalortotal servicos = sum (map valor servicos) -- Calcular o valor total dos serviços
 
 initDB :: Connection -> IO ()
 initDB conn = do
@@ -77,12 +86,13 @@ main = do
     get "/servicos" $ do
       servicos <- liftIO $ query_ conn "SELECT * FROM servicos" :: ActionM [Servico]
       json servicos
-  
+
     post "/servicos" $ do
       -- Inserir no banco de dados
       servico <- jsonData :: ActionM Servico
       liftIO $ execute conn "INSERT INTO servicos (cliente_id, descricao, valor, data_servico) VALUES (?, ?, ?, ?)" (cliente_id servico, descricao servico, valor servico, dataServico servico)
 
-    delete "/servicos/:id" $ do  
+    delete "/servicos/:id" $ do
       text "Em fase de construção"
-      -- Deletar do banco de dados
+
+-- Deletar do banco de dados
