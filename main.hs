@@ -4,7 +4,7 @@
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Text.Lazy (Text)
-import Data.Text.Lazy qualified as T
+import Data.Text.Lazy qualified as TL
 import Database.SQLite.Simple
 import Database.SQLite.Simple.FromRow
 import GHC.Generics (Generic)
@@ -15,7 +15,6 @@ import Text.Read (readMaybe)
 import Web.Scotty
 
 -- Ainda não sei se vou usar todos esses imports, mas é bom ter eles prontos caso eu precise
-
 data Cliente = Cliente
   { clienteid :: Maybe Int,
     nome :: Text,
@@ -33,8 +32,11 @@ data Servico = Servico
   deriving (Show, Generic)
 
 instance ToJSON Cliente
+
 instance FromJSON Cliente
+
 instance ToJSON Servico
+
 instance FromJSON Servico
 
 instance FromRow Cliente where
@@ -50,7 +52,7 @@ initDB conn = do
 
 main :: IO ()
 main = do
-  conn <- open "bdados.db"
+  conn <- open "bdados.db" 
   initDB conn
   scotty 3000 $ do
     middleware logStdoutDev
@@ -59,9 +61,13 @@ main = do
       -- Buscar no banco de dados
       text "Buscar serviço por ID"
 
-    post "/servicos/cadastro" $ do
+    post "/cadastro/:nome/:telefone" $ do
+      nome <- pathParam "nome" :: ActionM Text
+      telefone <- pathParam "telefone" :: ActionM Text
+      liftIO $ execute conn "INSERT INTO clientes (nome, telefone) VALUES (?, ?)" (nome, telefone)
+      text "Data inserted successfully"
+
       -- Rota de listar serviços
-      text "Cadastro de serviços"
 
     get "/servicos" $ do
       -- Colocar no banco de dados
