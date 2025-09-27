@@ -61,6 +61,13 @@ clientecommaisservicos :: [(Cliente, Int, Double)] -> Maybe (Cliente, Int)
 clientecommaisservicos [] = Nothing
 clientecommaisservicos lista = Just $ let (c, n, _) = maximumBy (comparing (\(_, n, _) -> n)) lista in (c, n)
 
+-- Função para ver o total faturado 
+
+-- Cliente que mais gastou
+
+-- Serviço mais caro
+
+
 
 initDB :: Connection -> IO ()
 initDB conn = do
@@ -81,6 +88,7 @@ main = do
       servicos <- liftIO $ query_ conn "SELECT * FROM servicos" :: ActionM [Servico]
       clientes <- liftIO $ query_ conn "SELECT * FROM clientes" :: ActionM [Cliente]
       let clientetop = clientecommaisservicos (quantidadeporcliente clientes servicos)
+
       json clientetop
       
     
