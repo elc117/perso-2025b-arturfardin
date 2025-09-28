@@ -3,19 +3,20 @@
 
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON, ToJSON, object, (.=))
+import Data.List (maximumBy)
 import Data.Maybe (fromMaybe)
+import Data.Ord (comparing)
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy qualified as TL
 import Database.SQLite.Simple
 import Database.SQLite.Simple.FromRow
 import GHC.Generics (Generic)
-import Data.List (maximumBy)
-import Data.Ord (comparing)
 import Network.Wai.Middleware.Cors (cors, simpleCors, simpleCorsResourcePolicy)
 import Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import System.Environment (lookupEnv)
 import Text.Read (readMaybe)
 import Web.Scotty
+import System.Console.GetOpt (ArgDescr(NoArg))
 
 -- Ainda não sei se vou usar todos esses imports, mas é bom ter eles prontos caso eu precise
 data Cliente = Cliente
@@ -35,16 +36,22 @@ data Servico = Servico
   deriving (Show, Generic)
 
 instance ToJSON Cliente
+
 instance FromJSON Cliente
+
 instance ToJSON Servico
+
 instance FromJSON Servico
 
 instance FromRow Servico where
   fromRow = Servico <$> field <*> field <*> field <*> field <*> field
+
 instance ToRow Servico where
   toRow (Servico id clienteId descricao valor data_servico) = toRow (id, clienteId, descricao, valor, data_servico)
+
 instance FromRow Cliente where
   fromRow = Cliente <$> field <*> field <*> field
+
 instance ToRow Cliente where
   toRow (Cliente id nome telefone) = toRow (id, nome, telefone)
 
@@ -55,19 +62,27 @@ contarservicosporcliente :: Int -> [Servico] -> Int
 contarservicosporcliente id servicos = length [s | s <- servicos, cliente_id s == id]
 
 quantidadeporcliente :: [Cliente] -> [Servico] -> [(Cliente, Int, Double)]
-quantidadeporcliente clientes servicos = [(c, contarservicosporcliente (fromMaybe 0(clienteid c)) servicos, calculovalortotal (fromMaybe 0(clienteid c)) servicos )| c <- clientes ]
+quantidadeporcliente clientes servicos = [(c, contarservicosporcliente (fromMaybe 0 (clienteid c)) servicos, calculovalortotal (fromMaybe 0 (clienteid c)) servicos) | c <- clientes]
 
 clientecommaisservicos :: [(Cliente, Int, Double)] -> Maybe (Cliente, Int)
 clientecommaisservicos [] = Nothing
 clientecommaisservicos lista = Just $ let (c, n, _) = maximumBy (comparing (\(_, n, _) -> n)) lista in (c, n)
 
--- Função para ver o total faturado 
+-- Função para ver o total faturado
+calculafaturamentototal :: [Servico] -> Double
+calculafaturamentototal servico = sum [valor s | s <- servico]
 
 -- Cliente que mais gastou
 
+clientequemaisgastou :: [(Cliente, Int, Double)] -> Maybe (Cliente, Double)
+clientequemaisgastou [] = Nothing
+clientequemaisgastou lista = let (c, _, total) = maximumBy (comparing (\(_, _, t)-> t)) lista in Just (c, total)
+
 -- Serviço mais caro
 
-
+servicomaiscaro :: [Servico] -> Maybe Servico
+servicomaiscaro [] = Nothing
+servicomaiscaro servico = Just (maximumBy (comparing valor) servico)
 
 initDB :: Connection -> IO ()
 initDB conn = do
@@ -83,15 +98,16 @@ main = do
     get "/" $ do
       file "cadastro.html"
 
-
     get "/estatisticas" $ do
       servicos <- liftIO $ query_ conn "SELECT * FROM servicos" :: ActionM [Servico]
       clientes <- liftIO $ query_ conn "SELECT * FROM clientes" :: ActionM [Cliente]
       let clientetop = clientecommaisservicos (quantidadeporcliente clientes servicos)
+      let clientegastador = clientequemaisgastou (quantidadeporcliente clientes servicos)
+      let servicocaro = servicomaiscaro servicos
 
       json clientetop
-      
-    
+      json clientegastador
+      json servicocaro
 
     get "/servicos/:id" $ do
       -- Buscar no banco de dados
