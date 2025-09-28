@@ -17,6 +17,7 @@ import System.Environment (lookupEnv)
 import Text.Read (readMaybe)
 import Web.Scotty
 import System.Console.GetOpt (ArgDescr(NoArg))
+-- Acabei não usando todas,  mas como pretendo fazer upgrades mesmo após o envio, vou deixar pra caso precise 
 
 data Cliente = Cliente
   { clienteid :: Maybe Int,
@@ -150,13 +151,13 @@ main = do
       -- Deletar servico do banco de dados
       idparam <- pathParam "id" :: ActionM Int
       liftIO $ execute conn "DELETE FROM servicos WHERE servicoid = ?" (Only idparam)
-      json ("Serviço deletado com sucesso" :: Text)
+      
 
     delete "/clientes/delete/:id" $ do
       -- Deletar cliente do banco de dados, se deletar o cliente, deleta todos servicos linkados com o id do cliente
       idparam <- pathParam "id" :: ActionM Int
       liftIO $ execute conn "DELETE FROM clientes WHERE clienteid = ?" (Only idparam)
       liftIO $ execute conn "DELETE FROM servicos WHERE cliente_id = ?" (Only idparam)
-      json ("Cliente deletado com sucesso" :: Text)
+      
 
 
