@@ -1,1 +1,18 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/7NMOLXjY)
+1. **Identificação**\
+Nome: Artur Fardin Corrêa\
+Curso: Ciência da Computação\
+
+2. **Tema:** sistema de cadastro de servicos\
+Objetivo: Usar o framework scotty para construir um serviço web que faça o registro de servicos e clientes com banco de dados relacionais usando SQLLITE3 e Haskell\
+
+3. **Desenvolvimento:**\
+    Usei o framework scotty para construir o back-end e criar as rotas que serão utilizadas no front-end para fazer as requisições, decidi criar algumas funções extras por receio do trabalho ficar muito focado em banco de dados. Algumas das bibliotecas usadas são:
+
+
+
+
+
+
+
+   
+   
