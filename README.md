@@ -30,14 +30,16 @@ Curso: Ciência da Computação\
     ```
      cabal install scotty text aeson sqlite-simple wai-cors wai-extra containers mtl bytestring
     ```
+    
     - Use GHCI main.hs para executar o código
     - Após isso, no GHCI digite main para abrir o servidor e inicializar o banco de dados
     - Abra o navegador e vá nesse link: http://localhost:3000/
     - Para as outras rotas http://localhost:3000/servicos, http://localhost:3000/clientes, http://localhost:3000/estatisticas
     - Ctrl + C para desativar o servidor e Ctrl + D para sair do GHCI
     - Para executar a testes.hs é só dar ghci testes.hs e digitar main
+    - Recomendo excluir o banco de dados, para ele ser criado quando o programa for iniciado e evitar erros
 
- 5. **Resultado Final:**
+ 6. **Resultado Final:**
     
 
 https://github.com/user-attachments/assets/8c780ecf-8895-4c22-9c77-3e995fa1a891
